@@ -1,0 +1,102 @@
+---
+title: "Yuri Corrêa Rocha"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages # nomes únicos
+#| include: false # não inclui o resultado no doc
+
+library(tidyverse) # pacote ggplot2 (gráficos)
+library(WDI) # pacote dos dados
+
+# BASES DE DADOS
+# COLOCAR OS TRÊS OBJETOS DE DADOS
+
+# EXEMPLO DA AULA 6
+# DADOS EM PAINEL
+dados_agricola <- WDI(country = 'all',
+                      indicator = 'AG.PRD.CROP.XD')
+# CORTE TRANSVERSAL
+dados_agricola_2023 <- WDI(country = 'all',
+                           indicator = 'AG.PRD.CROP.XD',
+                           start = 2023, end = 2023)
+# SÉRIE TEMPORAL
+dados_agricola_br <- WDI(country = 'BR',
+                         indicator = 'AG.PRD.CROP.XD')
+```
+
+## VARIÁVEL
+
+Falar sobre sua variável.
+
+## GRÁFICO COM DADOS EM PAINEL
+
+Falar sobre o gráfico com dados em painel.
+
+```{r}
+#| label: grafico-painel-melhorado
+#| warning: false
+#| echo: false
+
+ggplot(dados_agricola, aes(x = year, y = AG.PRD.CROP.XD, group = country, color = country)) +
+  geom_line(size = 1) +
+  scale_color_viridis_d(option = "D") +
+  labs(title = "Produção Agrícola - Dados em Painel",
+       x = "Ano",
+       y = "Produção (US$)",
+       color = "País") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none")
+
+
+
+
+```
+
+## GRÁFICO COM CORTE TRANSVERSAL
+
+Falar sobre o gráfico com dados de corte tranversal.
+
+```{r}
+#| label: grafico-corte-melhorado
+#| warning: false
+#| echo: false
+
+dados_ordenados <- dados_agricola_2023 %>% 
+  filter(!is.na(AG.PRD.CROP.XD)) %>%
+  arrange(desc(AG.PRD.CROP.XD)) %>%
+  slice_head(n = 10) # Top 10 países
+
+ggplot(dados_ordenados, aes(x = reorder(country, AG.PRD.CROP.XD), 
+                            y = AG.PRD.CROP.XD, 
+                            fill = country)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_viridis_d(option = "C") +
+  coord_flip() +
+  labs(title = "Produção Agrícola em 2023 - Top 10 Países",
+       x = "País",
+       y = "Produção (US$)") +
+  theme_minimal(base_size = 13)
+
+```
+
+## GRÁFICO COM SÉRIE TEMPORAL
+
+Falar sobre o gráfico com dados de série temporal.
+
+```{r}
+#| label: grafico-temporal-melhorado
+#| warning: false
+#| echo: false
+
+ggplot(dados_agricola_br, aes(x = year, y = AG.PRD.CROP.XD)) +
+  geom_line(color = "#1f78b4", size = 1.2) +
+  geom_point(color = "#e31a1c", size = 2) +
+  labs(title = "Produção Agrícola no Brasil (Série Temporal)",
+       x = "Ano",
+       y = "Produção (US$)") +
+  theme_minimal(base_size = 13)
+
+```

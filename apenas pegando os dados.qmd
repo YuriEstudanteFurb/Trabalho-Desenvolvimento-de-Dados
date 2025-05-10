@@ -1,0 +1,65 @@
+#| label: load-packages 
+#| include: false 
+
+library(tidyverse) 
+library(WDI) 
+
+# BASES DE DADOS
+# COLOCAR OS TRÊS OBJETOS DE DADOS
+
+# DADOS EM PAINEL (Todos os países, todos os anos)
+dados_agricola <- WDI(country = 'all',
+                      indicator = 'AG.PRD.CROP.XD')
+
+# CORTE TRANSVERSAL (Ano de 2023)
+dados_agricola_2023 <- WDI(country = 'all',
+                           indicator = 'AG.PRD.CROP.XD',
+                           start = 2023, end = 2023)
+
+# SÉRIE TEMPORAL PARA O BRASIL
+dados_agricola_br <- WDI(country = 'BR',
+                         indicator = 'AG.PRD.CROP.XD')
+#------------------------------------------------------------
+#| label: dadosempainel
+#| warning: false
+#| echo: false
+
+ggplot(data = dados_agricola,
+       mapping = aes(y = AG.PRD.CROP.XD, x = year)) +
+  geom_line(color = "darkgreen", size = 1) +
+  labs(title = "Evolução da Produção Agrícola",
+       x = "Ano", y = "Valor em US$")
+#-------------------------------------------------------------
+#| label: dadoscortetransversal
+#| warning: false 
+#| echo: false  
+
+dados_top10 <- dados_agricola_2023 %>%
+  filter(!is.na(AG.PRD.CROP.XD)) %>%
+  top_n(10, AG.PRD.CROP.XD)
+
+ggplot(dados_top10,
+       mapping = aes(y = AG.PRD.CROP.XD, x = reorder(country, AG.PRD.CROP.XD))) +
+  geom_col(fill = "darkorange") +
+  coord_flip() +
+  labs(title = "Top 10 Países por Produção Agrícola em 2023",
+       x = "País", y = "Valor em US$")
+
+#-------------------------------------------------------------
+#| label: dadosserietemporal
+#| warning: false 
+#| echo: false
+
+ggplot(dados_agricola_br,
+       mapping = aes(y = AG.PRD.CROP.XD, x = year)) +
+  geom_(color = "forestgreen", size = 1.2) +
+  geom_point(color = "black", size = 1) +
+  labs(title = "Evolução da Produção Agrícola no Brasil",
+       x = "Ano", y = "Valor em US$")
+
+
+
+
+
+
+
