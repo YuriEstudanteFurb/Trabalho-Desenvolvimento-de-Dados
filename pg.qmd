@@ -1,0 +1,108 @@
+---
+title: "Yuri Corrêa Rocha"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages # Carregamento de pacotes
+#| include: false # Não inclui o resultado no documento
+
+library(tidyverse)  # Pacote para manipulação de dados e gráficos
+library(WDI)        # Pacote para buscar dados do Banco Mundial
+library(ggplot2)    # Biblioteca de gráficos
+library(viridis)    # Melhor paleta de cores para mapas de calor
+
+
+
+# Dados de nascimentos do terceiro filho (SP.DYN.CBRT.IN. )
+
+# Dados em painel (todos os países)
+dados_nascimentos_painel <- WDI(country = 'all',
+                                indicator = 'SP.DYN.CBRT.IN. ')
+
+# Dados de corte transversal (2023)
+dados_nascimentos_2023 <- WDI(country = 'all',
+                               indicator = 'SP.DYN.CBRT.IN. ',
+                               start = 2023, end = 2023)
+
+# Dados de série temporal (Brasil)
+dados_nascimentos_br <- WDI(country = 'BR',
+                            indicator = 'SP.DYN.CBRT.IN. ')
+
+```
+
+## VARIÁVEL
+
+Falar sobre sua variável.
+
+## GRÁFICO COM DADOS EM PAINEL
+
+Falar sobre o gráfico com dados em painel.
+
+```{r}
+#| label: grafico-painel-melhorado
+#| warning: false
+#| echo: false
+
+ggplot(dados_nascimentos_painel, aes(x = year, y = SP.DYN.CBRT.IN. , group = country, color = country)) +
+  geom_line(size = 0.8, alpha = 0.6) +  # Linhas mais finas para melhorar visualização
+  scale_color_viridis_d(option = "A") + # Melhor contraste entre países
+  geom_smooth(aes(group = 1), method = "loess", color = "black", size = 1.2, se = FALSE) + # Linha de tendência
+  labs(title = "Nascimentos do Terceiro Filho - Tendências por País",
+       subtitle = "Comparação ao longo dos anos",
+       x = "Ano",
+       y = "Número de Nascimentos",
+       color = "País") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "right",
+        axis.text.x = element_text(angle = 45, hjust = 1)) # Melhorando leitura do eixo X
+
+```
+
+## GRÁFICO COM CORTE TRANSVERSAL
+
+Falar sobre o gráfico com dados de corte tranversal.
+
+```{r}
+#| label: grafico-corte-melhorado
+#| warning: false
+#| echo: false
+
+dados_ordenados <- dados_nascimentos_2023 %>% 
+  filter(!is.na(SP.DYN.CBRT.IN. )) %>%
+  arrange(desc(SP.DYN.CBRT.IN. )) %>%
+  slice_head(n = 10) # Top 10 países
+
+ggplot(dados_ordenados, aes(x = reorder(country, SP.DYN.CBRT.IN. ), 
+                            y = SP.DYN.CBRT.IN. , 
+                            fill = country)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_viridis_d(option = "C") +
+  coord_flip() +
+  labs(title = "Nascimentos do Terceiro Filho em 2023 - Top 10 Países",
+       x = "País",
+       y = "Número de Nascimentos") +
+  theme_minimal(base_size = 13)
+
+
+```
+
+## GRÁFICO COM SÉRIE TEMPORAL
+
+Falar sobre o gráfico com dados de série temporal.
+
+```{r}
+#| label: grafico-temporal-melhorado
+#| warning: false
+#| echo: false
+
+ggplot(dados_nascimentos_br, aes(x = year, y = SP.DYN.CBRT.IN. )) +
+  geom_line(color = "#1f78b4", size = 1.2) +
+  geom_point(color = "#e31a1c", size = 2) +
+  labs(title = "Nascimentos do Terceiro Filho no Brasil (Série Temporal)",
+       x = "Ano",
+       y = "Número de Nascimentos") +
+  theme_minimal(base_size = 13)
+
+```
